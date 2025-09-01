@@ -176,20 +176,29 @@
 
                         <!-- Actions -->
                         <div class="credit-actions">
-                            <div class="row g-2">
-                                <div class="col-8">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
                                     <button class="btn btn-primary w-100" 
                                             onclick="buyCredit({{ credit.id }}, '{{ credit.project_name }}', {{ credit.price }}, {{ credit.quantity }})">
-                                        <i class="fas fa-shopping-cart me-2"></i>
-                                        Buy Now
+                                        <i class="fas fa-shopping-cart me-1"></i>
+                                        Buy
                                     </button>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <button class="btn btn-outline-secondary w-100" 
                                             onclick="placeBid({{ credit.id }}, '{{ credit.project_name }}')">
                                         <i class="fas fa-gavel me-1"></i>
                                         Bid
                                     </button>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <a href="{{ url_for('view_certificate', credit_id=credit.id) }}" 
+                                       class="btn btn-outline-info w-100 btn-sm">
+                                        <i class="fas fa-certificate me-1"></i>
+                                        View Certificate
+                                    </a>
                                 </div>
                             </div>
                             <div class="mt-2">

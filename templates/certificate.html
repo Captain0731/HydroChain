@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Certificate - {{ credit.project_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-light mb-1">
+                        <i class="fas fa-certificate me-2"></i>Credit Certificate
+                    </h1>
+                    <p class="text-muted">Verification details for {{ credit.project_name }}</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-download me-2"></i>Download Certificate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificate Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card bg-dark-secondary border-0 certificate-card">
+                <div class="card-body p-4">
+                    <!-- Certificate Header -->
+                    <div class="text-center mb-4">
+                        <div class="certificate-seal bg-primary rounded-circle mx-auto mb-3">
+                            <i class="fas fa-certificate text-white fa-3x"></i>
+                        </div>
+                        <h2 class="text-light mb-2">Hydrogen Credit Certificate</h2>
+                        <div class="certificate-number">
+                            <span class="badge bg-success fs-6">Certificate ID: HC-{{ credit.token_id }}-{{ credit.vintage_year }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Project Information -->
+                    <div class="certificate-section mb-4">
+                        <h4 class="text-primary mb-3">Project Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Project Name</label>
+                                    <div class="text-light fw-bold">{{ credit.project_name }}</div>
+                                </div>
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Production Method</label>
+                                    <div class="text-light">{{ credit.project_type }}</div>
+                                </div>
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Location</label>
+                                    <div class="text-light">{{ credit.project_country }}{% if credit.project_region %}, {{ credit.project_region }}{% endif %}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Vintage Year</label>
+                                    <div class="text-light">{{ credit.vintage_year }}</div>
+                                </div>
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Quantity</label>
+                                    <div class="text-light">{{ "%.2f"|format(credit.quantity) }} kg H₂</div>
+                                </div>
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Environmental Impact</label>
+                                    <div class="text-light">{{ "%.2f"|format(credit.environmental_impact or 0) }} tons CO₂ reduced</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certification Details -->
+                    <div class="certificate-section mb-4">
+                        <h4 class="text-primary mb-3">Certification Details</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Primary Standard</label>
+                                    <div class="text-light">{{ credit.certification }}</div>
+                                </div>
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Certification Level</label>
+                                    <div class="text-light">
+                                        <span class="badge bg-{{ 'success' if credit.certification_level == 'certified' else 'info' if credit.certification_level == 'verified' else 'warning' if credit.certification_level == 'premium' else 'secondary' }}">
+                                            {{ credit.certification_level.title() }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Issue Date</label>
+                                    <div class="text-light">{{ credit.issue_date.strftime('%B %d, %Y') }}</div>
+                                </div>
+                                <div class="cert-field mb-3">
+                                    <label class="text-muted small">Quality Rating</label>
+                                    <div class="text-light">
+                                        {% for i in range(1, 6) %}
+                                            <i class="fas fa-star {{ 'text-warning' if i <= credit.quality_rating else 'text-muted' }}"></i>
+                                        {% endfor %}
+                                        ({{ "%.1f"|format(credit.quality_rating) }}/5.0)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Certifications -->
+                    {% if certifications %}
+                    <div class="certificate-section mb-4">
+                        <h4 class="text-primary mb-3">Additional Certifications</h4>
+                        {% for cert in certifications %}
+                        <div class="additional-cert-item p-3 mb-3 bg-dark rounded border border-secondary">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="cert-field mb-2">
+                                        <label class="text-muted small">Certifying Body</label>
+                                        <div class="text-light fw-bold">{{ cert.certifier_name }}</div>
+                                    </div>
+                                    <div class="cert-field mb-2">
+                                        <label class="text-muted small">Certificate Number</label>
+                                        <div class="text-light">{{ cert.certificate_number }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="cert-field mb-2">
+                                        <label class="text-muted small">Type</label>
+                                        <div class="text-light">{{ cert.certification_type.title() }}</div>
+                                    </div>
+                                    <div class="cert-field mb-2">
+                                        <label class="text-muted small">Status</label>
+                                        <div class="text-light">
+                                            <span class="badge bg-{{ 'success' if cert.status == 'active' else 'warning' if cert.status == 'expired' else 'danger' }}">
+                                                {{ cert.status.title() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if cert.confidence_score %}
+                            <div class="mt-2">
+                                <label class="text-muted small">Confidence Score</label>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ cert.confidence_score }}%">
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ "%.1f"|format(cert.confidence_score) }}%</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Blockchain Verification -->
+                    <div class="certificate-section">
+                        <h4 class="text-primary mb-3">Blockchain Verification</h4>
+                        <div class="blockchain-info p-3 bg-dark rounded border border-primary">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fab fa-ethereum text-primary me-2"></i>
+                                <span class="text-light fw-bold">Ethereum Network</span>
+                            </div>
+                            <div class="cert-field mb-2">
+                                <label class="text-muted small">Token ID</label>
+                                <div class="text-light font-monospace">{{ credit.token_id }}</div>
+                            </div>
+                            <div class="cert-field">
+                                <label class="text-muted small">Blockchain Status</label>
+                                <div class="text-light">
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Verified on Chain
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card bg-dark-secondary border-0 mb-4">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Certificate Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="status-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Current Status</span>
+                            <span class="badge bg-{{ 'secondary' if credit.is_retired else 'success' if credit.is_for_sale else 'primary' }}">
+                                {% if credit.is_retired %}Retired{% elif credit.is_for_sale %}For Sale{% else %}Owned{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="status-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Expiry Status</span>
+                            <span class="badge bg-success">Valid</span>
+                        </div>
+                    </div>
+                    <div class="status-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Verification</span>
+                            <span class="badge bg-success">
+                                <i class="fas fa-shield-alt me-1"></i>Verified
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card bg-dark-secondary border-0">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-cogs me-2"></i>Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-download me-2"></i>Download PDF
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="shareCertificate()">
+                            <i class="fas fa-share-alt me-2"></i>Share Certificate
+                        </button>
+                        <a href="{{ url_for('marketplace') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Marketplace
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.certificate-card {
+    border: 2px solid var(--bs-primary);
+}
+
+.certificate-seal {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.certificate-section {
+    border-left: 3px solid var(--bs-primary);
+    padding-left: 1rem;
+}
+
+.cert-field label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.additional-cert-item {
+    transition: transform 0.2s ease;
+}
+
+.additional-cert-item:hover {
+    transform: translateX(5px);
+}
+
+@media print {
+    .btn, .nav, .sidebar {
+        display: none !important;
+    }
+    
+    .certificate-card {
+        border: 2px solid #000 !important;
+        background: white !important;
+        color: black !important;
+    }
+}
+</style>
+
+<script>
+function shareCertificate() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Hydrogen Credit Certificate - {{ credit.project_name }}',
+            text: 'Verified hydrogen credit certificate',
+            url: window.location.href
+        });
+    } else {
+        // Fallback to copy URL
+        navigator.clipboard.writeText(window.location.href);
+        alert('Certificate URL copied to clipboard!');
+    }
+}
+</script>
+{% endblock %}

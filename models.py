@@ -1,6 +1,14 @@
-from app import db
 from datetime import datetime, timedelta
 from sqlalchemy import text
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+
+# Create a base class for SQLAlchemy models
+class Base(DeclarativeBase):
+    pass
+
+# Initialize SQLAlchemy with the base
+db = SQLAlchemy(model_class=Base)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

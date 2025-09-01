@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - HydroChain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-light mb-3">
+                <i class="fas fa-chart-line me-2"></i>Market Analytics
+            </h1>
+            <p class="text-muted">Comprehensive insights into the hydrogen credit marketplace</p>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-primary rounded-circle mx-auto mb-3">
+                        <i class="fas fa-leaf text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">{{ analytics.total_credits }}</h3>
+                    <p class="text-muted mb-0">Total Credits</p>
+                    <small class="text-success">{{ analytics.total_retired }} retired</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-success rounded-circle mx-auto mb-3">
+                        <i class="fas fa-users text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">{{ analytics.total_active_users }}</h3>
+                    <p class="text-muted mb-0">Active Users</p>
+                    <small class="text-info">{{ analytics.total_partnerships }} partnerships</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-info rounded-circle mx-auto mb-3">
+                        <i class="fas fa-dollar-sign text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">${{ "%.2f"|format(analytics.avg_price) }}</h3>
+                    <p class="text-muted mb-0">Avg Price/kg</p>
+                    <small class="text-warning">Market rate</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-warning rounded-circle mx-auto mb-3">
+                        <i class="fas fa-chart-bar text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">${{ "%.0f"|format(analytics.recent_volume) }}</h3>
+                    <p class="text-muted mb-0">30-Day Volume</p>
+                    <small class="text-primary">Trading activity</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Certification Distribution -->
+        <div class="col-lg-6 mb-4">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-certificate me-2"></i>Certification Standards
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if analytics.certifications %}
+                        <div class="certification-chart">
+                            {% for cert, count in analytics.certifications %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center">
+                                        <div class="cert-color-indicator bg-primary me-2"></div>
+                                        <span class="text-light">{{ cert }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-light fw-bold">{{ count }}</span>
+                                    <small class="text-muted ms-1">credits</small>
+                                </div>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                     style="width: {{ (count / analytics.total_credits * 100) }}%"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-certificate text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No certification data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Type Distribution -->
+        <div class="col-lg-6 mb-4">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-industry me-2"></i>Production Methods
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if analytics.project_types %}
+                        <div class="project-type-chart">
+                            {% for project_type, count in analytics.project_types %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center">
+                                        <div class="project-color-indicator bg-success me-2"></div>
+                                        <span class="text-light">{{ project_type }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-light fw-bold">{{ count }}</span>
+                                    <small class="text-muted ms-1">projects</small>
+                                </div>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ (count / analytics.total_credits * 100) }}%"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-industry text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No project data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Trends -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark-secondary border-0">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-chart-area me-2"></i>Market Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="insight-card bg-dark p-3 rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-trending-up text-success me-2"></i>
+                                    <h6 class="text-light mb-0">Growth Trend</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    The hydrogen credit market is showing strong growth with 
+                                    {{ analytics.total_active_users }} verified traders and 
+                                    {{ analytics.total_partnerships }} active partnerships.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="insight-card bg-dark p-3 rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-shield-alt text-info me-2"></i>
+                                    <h6 class="text-light mb-0">Quality Assurance</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    All credits are verified through multiple certification standards 
+                                    ensuring transparency and environmental impact accuracy.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="insight-card bg-dark p-3 rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-globe text-warning me-2"></i>
+                                    <h6 class="text-light mb-0">Global Reach</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    Credits from diverse production methods and geographic regions 
+                                    provide portfolio diversification opportunities.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cert-color-indicator, .project-color-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.insight-card {
+    border: 1px solid var(--bs-border-color);
+    transition: transform 0.2s ease;
+}
+
+.insight-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+</style>
+{% endblock %}

@@ -6,19 +6,13 @@ import threading
 import time
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash, send_file, make_response
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from concurrent.futures import ThreadPoolExecutor
 
-# Create a base class for SQLAlchemy models
-class Base(DeclarativeBase):
-    pass
-
-# Initialize SQLAlchemy
-db = SQLAlchemy(model_class=Base)
+# Import db from models
+from models import db
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -293,6 +287,66 @@ def partnerships():
                           user=user,
                           active_partnerships=active_partnerships,
                           available_partnerships=available_partnerships)
+
+@app.route('/analytics')
+def analytics():
+    if 'user_id' not in session:
+        flash('Please login first', 'error')
+        return redirect(url_for('login'))
+    
+    user = User.query.get(session['user_id'])
+    
+    # Get market analytics data
+    latest_analytics = MarketAnalytics.query.order_by(MarketAnalytics.date.desc()).first()
+    
+    # Calculate total market stats
+    total_credits = HydrogenCredit.query.count()
+    total_retired = HydrogenCredit.query.filter_by(is_retired=True).count()
+    total_active_users = User.query.filter_by(is_verified=True).count()
+    total_partnerships = PartnershipCredit.query.filter_by(status='active').count()
+    
+    # Calculate average price trends
+    available_credits = HydrogenCredit.query.filter_by(is_for_sale=True, is_retired=False).all()
+    avg_price = sum(credit.price for credit in available_credits) / len(available_credits) if available_credits else 0
+    
+    # Get recent transactions for volume calculation
+    recent_transactions = Transaction.query.filter_by(status='completed').order_by(Transaction.timestamp.desc()).limit(30).all()
+    recent_volume = sum(t.price * t.quantity for t in recent_transactions)
+    
+    # Get certification distribution
+    certifications = db.session.query(HydrogenCredit.certification, db.func.count(HydrogenCredit.id).label('count')).group_by(HydrogenCredit.certification).all()
+    
+    # Get project type distribution
+    project_types = db.session.query(HydrogenCredit.project_type, db.func.count(HydrogenCredit.id).label('count')).group_by(HydrogenCredit.project_type).all()
+    
+    analytics_data = {
+        'total_credits': total_credits,
+        'total_retired': total_retired,
+        'total_active_users': total_active_users,
+        'total_partnerships': total_partnerships,
+        'avg_price': avg_price,
+        'recent_volume': recent_volume,
+        'certifications': certifications,
+        'project_types': project_types,
+        'latest_analytics': latest_analytics
+    }
+    
+    return render_template('analytics.html', 
+                          user=user,
+                          analytics=analytics_data)
+
+@app.route('/certificates/<int:credit_id>')
+def view_certificate(credit_id):
+    if 'user_id' not in session:
+        flash('Please login first', 'error')
+        return redirect(url_for('login'))
+    
+    credit = HydrogenCredit.query.get_or_404(credit_id)
+    certifications = CreditCertification.query.filter_by(credit_id=credit_id).all()
+    
+    return render_template('certificate.html', 
+                          credit=credit,
+                          certifications=certifications)
 
 # API Routes
 @app.route('/api/credits', methods=['GET'])
