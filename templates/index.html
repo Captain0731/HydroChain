@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}HydroChain - Decentralized Hydrogen Credit Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold text-light mb-4">
+                        Trade Verified 
+                        <span class="text-gradient">Hydrogen Credits</span>
+                        on the Blockchain
+                    </h1>
+                    <p class="lead text-muted mb-4">
+                        Join the decentralized marketplace for authenticated hydrogen offset credits. 
+                        Connect your MetaMask wallet to start trading clean energy certificates today.
+                    </p>
+                    <div class="hero-actions">
+                        {% if not session.user_id %}
+                            <button class="btn btn-primary btn-lg me-3" id="heroConnectWallet">
+                                <i class="fas fa-wallet me-2"></i>Connect MetaMask
+                            </button>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Manual Login
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('marketplace') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-store me-2"></i>Explore Marketplace
+                            </a>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-tachometer-alt me-2"></i>View Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="floating-card">
+                        <div class="card bg-dark-secondary border-primary">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="credit-icon bg-primary rounded-circle p-2 me-3">
+                                        <i class="fas fa-bolt text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-light">Green Hydrogen Credit</h6>
+                                        <small class="text-muted">NorthSea Wind Project</small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <h4 class="text-success mb-0">2,500 kg</h4>
+                                            <small class="text-muted">H₂ Credits</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <h4 class="text-primary mb-0">$4.25</h4>
+                                            <small class="text-muted">per kg</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-dark-secondary">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="text-light mb-3">Why Choose HydroChain?</h2>
+                <p class="text-muted">Experience the future of hydrogen credit trading with blockchain technology</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon bg-primary rounded-circle mx-auto mb-3">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <h5 class="text-light mb-3">Verified Credits</h5>
+                    <p class="text-muted">All hydrogen credits are verified by certified third-party auditors ensuring authenticity and quality.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon bg-success rounded-circle mx-auto mb-3">
+                        <i class="fas fa-link text-white"></i>
+                    </div>
+                    <h5 class="text-light mb-3">Blockchain Powered</h5>
+                    <p class="text-muted">Immutable transaction records on the blockchain provide transparency and trust in every trade.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon bg-info rounded-circle mx-auto mb-3">
+                        <i class="fas fa-globe text-white"></i>
+                    </div>
+                    <h5 class="text-light mb-3">Global Marketplace</h5>
+                    <p class="text-muted">Connect with hydrogen producers and buyers worldwide in our decentralized marketplace.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3 class="text-primary mb-2">1,250+</h3>
+                    <p class="text-muted mb-0">Credits Traded</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3 class="text-success mb-2">50,000</h3>
+                    <p class="text-muted mb-0">kg H₂ Offset</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3 class="text-info mb-2">85</h3>
+                    <p class="text-muted mb-0">Active Projects</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <h3 class="text-warning mb-2">15</h3>
+                    <p class="text-muted mb-0">Countries</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-light mb-4">Ready to Start Trading?</h2>
+                <p class="text-muted mb-4">Connect your MetaMask wallet and join the hydrogen economy today</p>
+                {% if not session.user_id %}
+                    <button class="btn btn-primary btn-lg" id="ctaConnectWallet">
+                        <i class="fas fa-wallet me-2"></i>Connect MetaMask Wallet
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('marketplace') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-store me-2"></i>Enter Marketplace
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Connect wallet buttons
+    const heroConnectBtn = document.getElementById('heroConnectWallet');
+    const ctaConnectBtn = document.getElementById('ctaConnectWallet');
+    
+    if (heroConnectBtn) {
+        heroConnectBtn.addEventListener('click', connectWallet);
+    }
+    
+    if (ctaConnectBtn) {
+        ctaConnectBtn.addEventListener('click', connectWallet);
+    }
+    
+    // Floating animation for hero card
+    const floatingCard = document.querySelector('.floating-card');
+    if (floatingCard) {
+        setInterval(() => {
+            floatingCard.style.transform = 'translateY(' + Math.sin(Date.now() / 1000) * 10 + 'px)';
+        }, 50);
+    }
+});
+</script>
+{% endblock %}

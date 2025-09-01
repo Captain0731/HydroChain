@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}Partnerships - HydroChain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-light mb-3">
+                <i class="fas fa-handshake me-2"></i>Partnership Hub
+            </h1>
+            <p class="text-muted">Explore long-term partnerships and bulk trading opportunities for hydrogen credits</p>
+        </div>
+    </div>
+
+    <!-- Partnership Benefits -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bg-dark-secondary border-0">
+                <div class="card-body">
+                    <h5 class="text-light mb-3">Partnership Benefits</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="benefit-item text-center">
+                                <div class="benefit-icon bg-primary rounded-circle mx-auto mb-2">
+                                    <i class="fas fa-percentage text-white"></i>
+                                </div>
+                                <h6 class="text-light">Volume Discounts</h6>
+                                <small class="text-muted">Up to 15% off on bulk purchases</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="benefit-item text-center">
+                                <div class="benefit-icon bg-success rounded-circle mx-auto mb-2">
+                                    <i class="fas fa-lock text-white"></i>
+                                </div>
+                                <h6 class="text-light">Price Stability</h6>
+                                <small class="text-muted">Fixed pricing for contract duration</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="benefit-item text-center">
+                                <div class="benefit-icon bg-info rounded-circle mx-auto mb-2">
+                                    <i class="fas fa-calendar-alt text-white"></i>
+                                </div>
+                                <h6 class="text-light">Flexible Terms</h6>
+                                <small class="text-muted">3-24 month partnership options</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="benefit-item text-center">
+                                <div class="benefit-icon bg-warning rounded-circle mx-auto mb-2">
+                                    <i class="fas fa-star text-white"></i>
+                                </div>
+                                <h6 class="text-light">Priority Access</h6>
+                                <small class="text-muted">First access to new projects</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Active Partnerships -->
+        <div class="col-lg-8">
+            <div class="card bg-dark-secondary border-0 mb-4">
+                <div class="card-header bg-transparent border-secondary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="text-light mb-0">
+                            <i class="fas fa-handshake me-2"></i>My Active Partnerships
+                        </h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newPartnershipModal">
+                            <i class="fas fa-plus me-1"></i>New Partnership
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_partnerships %}
+                        <div class="row g-3">
+                            {% for partnership in active_partnerships %}
+                            <div class="col-12">
+                                <div class="card bg-dark border-secondary">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="text-light mb-0">{{ partnership.credit.project_name if partnership.credit else 'Partnership Credit' }}</h6>
+                                                    <span class="badge bg-{{ 'success' if partnership.status == 'active' else 'warning' }}">
+                                                        {{ partnership.status.title() }}
+                                                    </span>
+                                                </div>
+                                                <p class="text-muted small mb-2">
+                                                    {{ partnership.partnership_type.replace('_', ' ').title() }} Partnership
+                                                </p>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <small class="text-muted">Allocated Quantity</small>
+                                                        <div class="text-light fw-bold">{{ "%.1f"|format(partnership.allocated_quantity) }} kg</div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <small class="text-muted">Reserved Price</small>
+                                                        <div class="text-light fw-bold">${{ "%.2f"|format(partnership.reserved_price) }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-md-end">
+                                                <div class="partnership-timeline">
+                                                    <small class="text-muted d-block">Valid Until</small>
+                                                    <div class="text-light">{{ partnership.end_date.strftime('%B %d, %Y') }}</div>
+                                                    {% if partnership.auto_renew %}
+                                                        <small class="text-success">
+                                                            <i class="fas fa-sync-alt me-1"></i>Auto-renew enabled
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="mt-2">
+                                                    <button class="btn btn-outline-primary btn-sm me-2" 
+                                                            onclick="viewPartnershipDetails({{ partnership.id }})">
+                                                        <i class="fas fa-eye me-1"></i>View
+                                                    </button>
+                                                    {% if partnership.status == 'active' %}
+                                                        <button class="btn btn-outline-warning btn-sm" 
+                                                                onclick="cancelPartnership({{ partnership.id }})">
+                                                            <i class="fas fa-times me-1"></i>Cancel
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-handshake text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">No Active Partnerships</h5>
+                            <p class="text-muted">Start a partnership to access bulk pricing and exclusive deals</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPartnershipModal">
+                                <i class="fas fa-plus me-2"></i>Create Partnership
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Partnership Opportunities -->
+        <div class="col-lg-4">
+            <div class="card bg-dark-secondary border-0">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-star me-2"></i>Partnership Opportunities
+                    </h5>
+                </div>
+                <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                    {% if available_partnerships %}
+                        {% for opportunity in available_partnerships %}
+                        <div class="partnership-opportunity mb-3 p-3 rounded bg-dark border border-secondary">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="text-light mb-0">{{ opportunity.project_name }}</h6>
+                                <span class="badge bg-primary">Partnership</span>
+                            </div>
+                            <p class="text-muted small mb-2">{{ opportunity.project_type }} • {{ opportunity.project_country }}</p>
+                            
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Available</small>
+                                    <div class="text-light fw-bold">{{ "%.1f"|format(opportunity.quantity) }} kg</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Partner Price</small>
+                                    <div class="text-success fw-bold">${{ "%.2f"|format(opportunity.price * 0.9) }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ opportunity.vintage_year }}
+                                </small>
+                                <button class="btn btn-outline-success btn-sm" 
+                                        onclick="requestPartnership({{ opportunity.id }}, '{{ opportunity.project_name }}')">
+                                    <i class="fas fa-handshake me-1"></i>Request
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-search text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">No partnership opportunities currently available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Partnership Modal -->
+<div class="modal fade" id="newPartnershipModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark-custom border-0">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-light">Create New Partnership</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="partnershipForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="partnershipType" class="form-label text-light">Partnership Type</label>
+                            <select class="form-select bg-dark text-light border-secondary" id="partnershipType" required>
+                                <option value="">Select Type</option>
+                                <option value="corporate_bulk">Corporate Bulk (50+ kg)</option>
+                                <option value="long_term">Long Term (12+ months)</option>
+                                <option value="exclusive">Exclusive Access</option>
+                                <option value="renewable_only">Renewable Only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="partnershipDuration" class="form-label text-light">Duration (months)</label>
+                            <select class="form-select bg-dark text-light border-secondary" id="partnershipDuration" required>
+                                <option value="">Select Duration</option>
+                                <option value="3">3 Months</option>
+                                <option value="6">6 Months</option>
+                                <option value="12">12 Months</option>
+                                <option value="24">24 Months</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="minQuantity" class="form-label text-light">Minimum Quantity (kg)</label>
+                            <input type="number" class="form-control bg-dark text-light border-secondary" 
+                                   id="minQuantity" min="50" step="10" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="maxPrice" class="form-label text-light">Max Price (USD/kg)</label>
+                            <input type="number" class="form-control bg-dark text-light border-secondary" 
+                                   id="maxPrice" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="preferredProjects" class="form-label text-light">Preferred Project Types</label>
+                            <select class="form-select bg-dark text-light border-secondary" id="preferredProjects" multiple>
+                                <option value="Electrolysis">Electrolysis</option>
+                                <option value="Wind-Powered Electrolysis">Wind-Powered Electrolysis</option>
+                                <option value="Solar Thermochemical">Solar Thermochemical</option>
+                                <option value="Biomass Gasification">Biomass Gasification</option>
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple options</small>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="autoRenew">
+                                <label class="form-check-label text-light" for="autoRenew">
+                                    Enable auto-renewal
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="partnershipNotes" class="form-label text-light">Additional Requirements</label>
+                            <textarea class="form-control bg-dark text-light border-secondary" 
+                                      id="partnershipNotes" rows="3" 
+                                      placeholder="Specific requirements, sustainability goals, etc."></textarea>
+                        </div>
+                    </div>
+                </form>
+                <div class="alert alert-info border-0 bg-dark-secondary mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Partnership requests will be reviewed by our team within 2-3 business days.
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitPartnershipRequest()">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Request
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Partnership Details Modal -->
+<div class="modal fade" id="partnershipDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark-custom border-0">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-light">Partnership Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="partnershipDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function requestPartnership(creditId, projectName) {
+    // Pre-fill the form with the selected opportunity
+    document.getElementById('newPartnershipModal').setAttribute('data-credit-id', creditId);
+    new bootstrap.Modal(document.getElementById('newPartnershipModal')).show();
+}
+
+async function submitPartnershipRequest() {
+    const form = document.getElementById('partnershipForm');
+    const formData = new FormData(form);
+    
+    // Validate required fields
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    showLoading('Submitting partnership request...');
+    
+    try {
+        // Simulate API call - in real implementation, this would call an actual endpoint
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        hideLoading();
+        bootstrap.Modal.getInstance(document.getElementById('newPartnershipModal')).hide();
+        showAlert('Success', 'Partnership request submitted successfully! We will review and contact you within 2-3 business days.', 'success');
+        
+        // Reset form
+        form.reset();
+        
+    } catch (error) {
+        hideLoading();
+        showAlert('Error', 'Failed to submit partnership request. Please try again.', 'error');
+    }
+}
+
+function viewPartnershipDetails(partnershipId) {
+    // In a real implementation, this would fetch partnership details from the API
+    const detailsContent = `
+        <div class="partnership-details">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h6 class="text-light">Partnership Information</h6>
+                    <table class="table table-dark table-sm">
+                        <tr><td>Type:</td><td>Corporate Bulk</td></tr>
+                        <tr><td>Status:</td><td><span class="badge bg-success">Active</span></td></tr>
+                        <tr><td>Start Date:</td><td>January 15, 2025</td></tr>
+                        <tr><td>End Date:</td><td>July 15, 2025</td></tr>
+                        <tr><td>Auto-Renew:</td><td>Yes</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-light">Credit Allocation</h6>
+                    <table class="table table-dark table-sm">
+                        <tr><td>Allocated:</td><td>1,500 kg H₂</td></tr>
+                        <tr><td>Used:</td><td>450 kg H₂</td></tr>
+                        <tr><td>Remaining:</td><td>1,050 kg H₂</td></tr>
+                        <tr><td>Reserved Price:</td><td>$4.25/kg</td></tr>
+                    </table>
+                </div>
+                <div class="col-12">
+                    <h6 class="text-light">Terms & Conditions</h6>
+                    <div class="bg-dark p-3 rounded">
+                        <p class="text-muted mb-2">• Minimum monthly purchase requirement: 250 kg H₂</p>
+                        <p class="text-muted mb-2">• Fixed pricing guaranteed for contract duration</p>
+                        <p class="text-muted mb-2">• Priority access to new project launches</p>
+                        <p class="text-muted mb-0">• Quarterly sustainability reporting included</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('partnershipDetailsContent').innerHTML = detailsContent;
+    new bootstrap.Modal(document.getElementById('partnershipDetailsModal')).show();
+}
+
+async function cancelPartnership(partnershipId) {
+    if (!confirm('Are you sure you want to cancel this partnership? This action cannot be undone.')) {
+        return;
+    }
+    
+    showLoading('Cancelling partnership...');
+    
+    try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        hideLoading();
+        showAlert('Success', 'Partnership cancelled successfully. Any unused allocation will be released back to the marketplace.', 'success');
+        setTimeout(() => location.reload(), 2000);
+        
+    } catch (error) {
+        hideLoading();
+        showAlert('Error', 'Failed to cancel partnership. Please try again.', 'error');
+    }
+}
+</script>
+{% endblock %}

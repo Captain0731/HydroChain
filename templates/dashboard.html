@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - HydroChain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-light mb-1">Welcome back, {{ user.username }}!</h1>
+                    <p class="text-muted">Manage your hydrogen credits and track your trading activity</p>
+                </div>
+                <div class="text-end">
+                    <div class="wallet-info">
+                        <small class="text-muted d-block">Wallet Address</small>
+                        <code class="text-primary">{{ user.wallet_address[:10] }}...{{ user.wallet_address[-8:] }}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-primary rounded-circle mx-auto mb-3">
+                        <i class="fas fa-bolt text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">{{ owned_credits|length }}</h3>
+                    <p class="text-muted mb-0">Owned Credits</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-success rounded-circle mx-auto mb-3">
+                        <i class="fas fa-leaf text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">{{ "%.1f"|format(user.total_offsets) }}</h3>
+                    <p class="text-muted mb-0">kg H₂ Offset</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-info rounded-circle mx-auto mb-3">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">${{ "%.2f"|format(user.trading_volume) }}</h3>
+                    <p class="text-muted mb-0">Trading Volume</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark-secondary border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-warning rounded-circle mx-auto mb-3">
+                        <i class="fas fa-star text-white"></i>
+                    </div>
+                    <h3 class="text-light mb-1">{{ "%.1f"|format(user.reputation_score) }}</h3>
+                    <p class="text-muted mb-0">Reputation</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Owned Credits -->
+        <div class="col-lg-8">
+            <div class="card bg-dark-secondary border-0 mb-4">
+                <div class="card-header bg-transparent border-secondary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="text-light mb-0">
+                            <i class="fas fa-bolt me-2"></i>My Hydrogen Credits
+                        </h5>
+                        <a href="{{ url_for('marketplace') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Buy More
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if owned_credits %}
+                        <div class="row g-3">
+                            {% for credit in owned_credits %}
+                            <div class="col-md-6">
+                                <div class="card bg-dark border-secondary h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="text-light mb-0">{{ credit.project_name }}</h6>
+                                            {% if credit.is_retired %}
+                                                <span class="badge bg-secondary">Retired</span>
+                                            {% elif credit.is_for_sale %}
+                                                <span class="badge bg-success">For Sale</span>
+                                            {% else %}
+                                                <span class="badge bg-primary">Owned</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-muted small mb-2">{{ credit.project_type }} • {{ credit.project_country }}</p>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Quantity</small>
+                                                <div class="text-light fw-bold">{{ "%.1f"|format(credit.quantity) }} kg</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Price</small>
+                                                <div class="text-light fw-bold">${{ "%.2f"|format(credit.price) }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            {% if not credit.is_retired %}
+                                                {% if not credit.is_for_sale %}
+                                                    <button class="btn btn-outline-success btn-sm me-2" 
+                                                            onclick="sellCredit({{ credit.id }})">
+                                                        <i class="fas fa-tag me-1"></i>Sell
+                                                    </button>
+                                                {% endif %}
+                                                <button class="btn btn-outline-warning btn-sm" 
+                                                        onclick="retireCredit({{ credit.id }})">
+                                                    <i class="fas fa-leaf me-1"></i>Retire
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bolt text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">No Credits Yet</h5>
+                            <p class="text-muted">Start by purchasing verified hydrogen credits from our marketplace</p>
+                            <a href="{{ url_for('marketplace') }}" class="btn btn-primary">
+                                <i class="fas fa-store me-2"></i>Browse Marketplace
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Notifications -->
+        <div class="col-lg-4">
+            <!-- Notifications -->
+            <div class="card bg-dark-secondary border-0 mb-4">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                        <div class="notification-item d-flex mb-3 p-2 rounded bg-dark">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="fas fa-{{ 'handshake' if notification.notification_type == 'partnership' else 'exchange-alt' if notification.notification_type == 'trade' else 'info-circle' }} text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="text-light mb-1 small">{{ notification.title }}</h6>
+                                <p class="text-muted small mb-1">{{ notification.message }}</p>
+                                <small class="text-muted">{{ notification.created_at.strftime('%M minutes ago') if (now() - notification.created_at).seconds < 3600 else notification.created_at.strftime('%H hours ago') if (now() - notification.created_at).seconds < 86400 else notification.created_at.strftime('%B %d') }}</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary" 
+                                    onclick="markNotificationRead({{ notification.id }})">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-bell-slash text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">No new notifications</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card bg-dark-secondary border-0">
+                <div class="card-header bg-transparent border-secondary">
+                    <h5 class="text-light mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Transactions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if transactions %}
+                        {% for transaction in transactions[:5] %}
+                        <div class="transaction-item d-flex justify-content-between align-items-center mb-3 p-2 rounded bg-dark">
+                            <div>
+                                <h6 class="text-light mb-1 small">
+                                    {% if transaction.buyer_id == user.id %}
+                                        <i class="fas fa-arrow-down text-success me-1"></i>Purchased
+                                    {% else %}
+                                        <i class="fas fa-arrow-up text-info me-1"></i>Sold
+                                    {% endif %}
+                                </h6>
+                                <p class="text-muted small mb-0">{{ "%.1f"|format(transaction.quantity) }} kg H₂</p>
+                            </div>
+                            <div class="text-end">
+                                <div class="text-light small fw-bold">${{ "%.2f"|format(transaction.price) }}</div>
+                                <small class="text-muted">{{ transaction.timestamp.strftime('%m/%d') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if transactions|length > 5 %}
+                        <div class="text-center">
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-primary btn-sm">
+                                View All Transactions
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-history text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">No transactions yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sell Credit Modal -->
+<div class="modal fade" id="sellModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark-custom border-0">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-light">Sell Credit</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sellForm">
+                    <input type="hidden" id="sellCreditId">
+                    <div class="mb-3">
+                        <label for="sellPrice" class="form-label text-light">Selling Price (USD)</label>
+                        <input type="number" class="form-control bg-dark text-light border-secondary" 
+                               id="sellPrice" step="0.01" min="0.01" required>
+                        <small class="text-muted">Set your desired price per kg</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="confirmSell()">List for Sale</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function sellCredit(creditId) {
+    document.getElementById('sellCreditId').value = creditId;
+    new bootstrap.Modal(document.getElementById('sellModal')).show();
+}
+
+async function confirmSell() {
+    const creditId = document.getElementById('sellCreditId').value;
+    const price = document.getElementById('sellPrice').value;
+    
+    if (!price || price <= 0) {
+        alert('Please enter a valid price');
+        return;
+    }
+    
+    showLoading('Listing credit for sale...');
+    
+    try {
+        const response = await fetch('/api/sell', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                credit_id: parseInt(creditId),
+                price: parseFloat(price)
+            })
+        });
+        
+        const result = await response.json();
+        hideLoading();
+        
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('sellModal')).hide();
+            showAlert('Success', result.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('Error', result.message, 'error');
+        }
+    } catch (error) {
+        hideLoading();
+        showAlert('Error', 'Failed to list credit for sale', 'error');
+    }
+}
+
+async function retireCredit(creditId) {
+    if (!confirm('Are you sure you want to retire this credit? This action cannot be undone.')) {
+        return;
+    }
+    
+    showLoading('Retiring credit...');
+    
+    try {
+        const response = await fetch('/api/retire', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                credit_id: creditId
+            })
+        });
+        
+        const result = await response.json();
+        hideLoading();
+        
+        if (result.success) {
+            showAlert('Success', result.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('Error', result.message, 'error');
+        }
+    } catch (error) {
+        hideLoading();
+        showAlert('Error', 'Failed to retire credit', 'error');
+    }
+}
+
+async function markNotificationRead(notificationId) {
+    try {
+        const response = await fetch(`/api/notifications/mark-read/${notificationId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+    }
+}
+</script>
+{% endblock %}
