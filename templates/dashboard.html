@@ -164,7 +164,7 @@
                             <div class="flex-grow-1">
                                 <h6 class="text-light mb-1 small">{{ notification.title }}</h6>
                                 <p class="text-muted small mb-1">{{ notification.message }}</p>
-                                <small class="text-muted">{{ notification.created_at.strftime('%M minutes ago') if (now() - notification.created_at).seconds < 3600 else notification.created_at.strftime('%H hours ago') if (now() - notification.created_at).seconds < 86400 else notification.created_at.strftime('%B %d') }}</small>
+                                <small class="text-muted">{{ notification.created_at.strftime('%B %d, %Y') }}</small>
                             </div>
                             <button class="btn btn-sm btn-outline-secondary" 
                                     onclick="markNotificationRead({{ notification.id }})">
